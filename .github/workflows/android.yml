@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'FootballSyncAndroid_SyncBuild.zip'
+      - 'FootballSyncAndroid_FixedSync.zip'
       - '.github/workflows/android.yml'
 
 jobs:
@@ -28,7 +28,7 @@ jobs:
 
       - name: Extract Android project
         run: |
-          unzip -q FootballSyncAndroid_SyncBuild.zip -d extracted
+          unzip -q FootballSyncAndroid_FixedSync.zip -d extracted
           echo "PROJECT_DIR=$GITHUB_WORKSPACE/extracted/FootballSyncAndroid" >> $GITHUB_ENV
 
       - name: Build APK
