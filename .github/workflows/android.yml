@@ -1,0 +1,41 @@
+name: Build Football Sync APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'FootballSyncAndroid_Starter.zip'
+      - '.github/workflows/android.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get project files
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Extract Android project
+        run: |
+          unzip -q FootballSyncAndroid_Starter.zip -d extracted
+          echo "PROJECT_DIR=$GITHUB_WORKSPACE/extracted/FootballSyncAndroid" >> $GITHUB_ENV
+
+      - name: Build APK
+        run: gradle -p "$PROJECT_DIR" assembleDebug
+
+      - name: Save APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: FootballSync-APK
+          path: extracted/FootballSyncAndroid/app/build/outputs/apk/debug/app-debug.apk
