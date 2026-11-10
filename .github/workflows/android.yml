@@ -32,6 +32,26 @@ jobs:
           unzip -q FootballSyncAndroid_SyncImproved.zip -d extracted
           echo "PROJECT_DIR=$GITHUB_WORKSPACE/extracted/FootballSyncAndroid" >> $GITHUB_ENV
 
+      - name: Fix Java syntax
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          matches = list(Path("extracted").rglob("AccountWebActivity.java"))
+          if len(matches) != 1:
+              raise SystemExit(f"Expected one AccountWebActivity.java, found {len(matches)}")
+          p = matches[0]
+          lines = p.read_text().splitlines()
+          found = False
+          for i, line in enumerate(lines):
+              if "String result=r==null?" in line:
+                  lines[i] = r'        String result=r==null?"UNKNOWN":r.replace("\"","");'
+                  found = True
+          if not found:
+              raise SystemExit("Expected Java line not found; stopping build safely.")
+          p.write_text("\n".join(lines) + "\n")
+          print(f"Patched {p}")
+          PY
+
       - name: Build APK
         run: gradle -p "$PROJECT_DIR" assembleDebug
 
